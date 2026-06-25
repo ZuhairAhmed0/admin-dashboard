@@ -1,0 +1,57 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String
+  refreshToken String?
+  avatar       String?
+  role         Role     @default(USER)
+  status       Status  @default(ACTIVE)
+  tokenVersion Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  logs         Log[]
+  files        File[]
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  action    String
+  performedBy String
+  user User @relation(fields: [performedBy], references: [id])
+  details String?
+  ip String?
+  createdAt DateTime @default(now())
+}
+
+model File {
+  id String @id @default(uuid())
+  filename String
+  url String
+  mimeType String
+  size Int
+  uploadedBy String
+  user User @relation(fields: [uploadedBy], references: [id])
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  USER
+  MODERATOR
+}
+
+enum Status {
+  ACTIVE
+  SUSPEND
+  DELETED
+}
