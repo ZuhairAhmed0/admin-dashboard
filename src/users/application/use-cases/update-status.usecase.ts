@@ -15,7 +15,8 @@ export class UpdateStatusUseCase {
   async execute(id: string, status: Status): Promise<User> {
     const user = await this.userRepo.findById(id);
 
-    if (!user) throw new NotFoundException('User not found');
+    if (!user || user.status === Status.DELETED)
+      throw new NotFoundException('User not found');
 
     const updatedUser = await this.userRepo.update(id, { status });
 

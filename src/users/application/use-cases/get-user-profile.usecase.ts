@@ -4,6 +4,7 @@ import {
   IUSER_REPOSITORY,
   IUserRepository,
 } from '../../domain/interfaces/user.repository';
+import { Status } from '../../domain/enums/Status';
 
 @Injectable()
 export class GetUserProfileUseCase {
@@ -14,7 +15,7 @@ export class GetUserProfileUseCase {
   async execute(id: string): Promise<User> {
     const user = await this.userRepo.findById(id);
 
-    if (!user) {
+    if (!user || user.status === Status.DELETED) {
       throw new NotFoundException('User not found');
     }
 
