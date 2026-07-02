@@ -3,9 +3,8 @@
 /node_modules
 /build
 
-zfile.structer.md
-ROADMAP.md
-logs-module-plan.md
+/.agents
+/.vscode
 # Logs
 /logs
 *.log
