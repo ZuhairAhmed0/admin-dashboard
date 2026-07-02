@@ -4,8 +4,10 @@
 /build
 
 zfile.structer.md
+ROADMAP.md
+logs-module-plan.md
 # Logs
-logs
+/logs
 *.log
 npm-debug.log*
 pnpm-debug.log*

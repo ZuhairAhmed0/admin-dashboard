@@ -8,7 +8,7 @@ import { CreateUserDto } from '../../presentation/dto/create-user.dto';
 import {
   I_HASH_PROVIDER,
   IHashProvider,
-} from 'src/shared/security/interfaces/hash.provider';
+} from '../../../shared/security/interfaces/hash.provider';
 
 @Injectable()
 export class CreateUserUseCase {

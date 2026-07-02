@@ -1,98 +1,116 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Admin Dashboard API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A robust, scalable, and secure backend API for an Admin Dashboard built with **NestJS**, **Prisma ORM**, and **PostgreSQL**. The project strictly follows **Clean Architecture** principles to ensure maintainability, testability, and separation of concerns.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Features
 
-## Description
+- **Clean Architecture:** Divided into Domain, Application, Infrastructure, and Presentation layers.
+- **Authentication & Authorization:** Secure JWT-based authentication with Access and Refresh tokens, and Role-Based Access Control (RBAC).
+- **Security:** Integrated with `Helmet`, `CORS`, and Rate Limiting (`@nestjs/throttler`) to prevent common vulnerabilities and Brute Force attacks.
+- **Centralized Error & Response Handling:** Global interceptors for standardized responses and exception filters for consistent error outputs.
+- **Activity Logging:** Event-driven action logging system using `@nestjs/event-emitter` to track administrative activities automatically.
+- **File Uploads:** Secure file uploading system (Multer) with strict size and type validation (`ParseFilePipe`).
+- **Pagination & Filtering:** Standardized pagination and filtering capabilities for resource collections.
+- **Soft Deletion:** Safe data removal by marking records as deleted without physically removing them from the database.
+- **API Documentation:** Auto-generated interactive API documentation using Swagger (`@nestjs/swagger`).
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🛠️ Tech Stack
 
-## Project setup
+- **Framework:** [NestJS](https://nestjs.com/)
+- **Database:** [PostgreSQL](https://www.postgresql.org/)
+- **ORM:** [Prisma](https://www.prisma.io/)
+- **Authentication:** Passport.js & JWT
+- **Validation:** class-validator & class-transformer
+- **Logging:** Winston Logger
 
-```bash
-$ npm install
+## 📦 Project Structure
+
+```text
+src/
+├── config/         # Application configurations (DB, JWT, etc.)
+├── database/       # Prisma service and database connection
+├── shared/         # Global interceptors, filters, decorators, and guards
+├── auth/           # Authentication module (Login, Tokens, Password)
+├── users/          # User management module (Admin CRUD operations)
+├── upload/         # File upload module
+└── logs/           # Event-driven activity logging module
 ```
 
-## Compile and run the project
+## ⚙️ Prerequisites
+
+Make sure you have the following installed:
+- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- [PostgreSQL](https://www.postgresql.org/) (Running instance)
+
+## 🚀 Getting Started
+
+### 1. Clone the repository and install dependencies
+
+```bash
+npm install
+```
+
+### 2. Set up environment variables
+
+Create a `.env` file in the root directory based on the configuration required:
+
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/admin_dashboard?schema=public"
+
+# Application Settings
+NODE_ENV=development
+PORT=3000
+
+# JWT Secrets
+JWT_ACCESS_SECRET="your_access_secret_key"
+JWT_REFRESH_SECRET="your_refresh_secret_key"
+```
+
+### 3. Database Migration
+
+Apply the Prisma schema to your database to generate the tables:
+
+```bash
+npx prisma migrate dev --name init
+npx prisma generate
+```
+
+### 4. Running the Application
 
 ```bash
 # development
-$ npm run start
+npm run start
 
-# watch mode
-$ npm run start:dev
+# watch mode (recommended for development)
+npm run start:dev
 
 # production mode
-$ npm run start:prod
+npm run start:prod
 ```
 
-## Run tests
+## 📚 API Documentation (Swagger)
+
+Once the application is running, you can access the interactive Swagger documentation at:
+
+```
+http://localhost:3000/api-docs
+```
+*(Assuming the app is running on port 3000 and the global prefix is `/api`)*
+
+## 🧪 Testing
 
 ```bash
 # unit tests
-$ npm run test
+npm run test
 
 # e2e tests
-$ npm run test:e2e
+npm run test:e2e
 
 # test coverage
-$ npm run test:cov
+npm run test:cov
 ```
 
-## Deployment
+## 📝 License
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is [UNLICENSED](LICENSE).

@@ -1,4 +1,4 @@
-import { Role } from '../enums/Role';
+import { Role } from '../../../shared/enums/Role';
 import { Status } from '../enums/Status';
 
 export class User {

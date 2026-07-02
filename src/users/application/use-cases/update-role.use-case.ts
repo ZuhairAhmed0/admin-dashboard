@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { User } from '../../domain/entities/user.entity';
-import { Role } from '../../domain/enums/Role';
+import { Role } from '../../../shared/enums/Role';
 import {
   IUSER_REPOSITORY,
   IUserRepository,

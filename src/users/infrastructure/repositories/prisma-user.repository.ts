@@ -2,8 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../../database/database.service';
 import { IUserRepository } from '../../domain/interfaces/user.repository';
 import { User } from '../../domain/entities/user.entity';
-import { Role as PrismaRole, Status as PrismaStatus } from '@prisma/client';
-import { Role } from '../../domain/enums/Role';
+import {
+  Role as PrismaRole,
+  Status as PrismaStatus,
+  Prisma,
+} from '@prisma/client';
+import { Role } from '../../../shared/enums/Role';
 import { Status } from '../../domain/enums/Status';
 
 @Injectable()
@@ -55,10 +59,34 @@ export class PrismaUserRepository implements IUserRepository {
     return this.toDomain(user);
   }
 
-  async findAll(query?: Partial<User>): Promise<User[]> {
-    const users = await this.prisma.user.findMany({ where: query ?? {} });
+  async findAll(
+    query?: Partial<User> & { search?: string },
+    skip?: number,
+    take?: number,
+  ): Promise<{ users: User[]; total: number }> {
+    const where: Prisma.UserWhereInput = {};
 
-    return users.map((user) => this.toDomain(user));
+    if (query?.role) where.role = query.role;
+    if (query?.status) where.status = query.status;
+
+    if (query?.search) {
+      where.OR = [
+        { name: { contains: query.search, mode: 'insensitive' } },
+        { email: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+    const [users, total] = await this.prisma.$transaction([
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    const usersData = users.map((user) => this.toDomain(user));
+    return { users: usersData, total };
   }
 
   async save(data: Partial<User>): Promise<User> {
