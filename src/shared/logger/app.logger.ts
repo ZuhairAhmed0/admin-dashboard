@@ -1,18 +1,24 @@
 import { Injectable, LoggerService } from '@nestjs/common';
 import * as winston from 'winston';
+import * as dotenv from 'dotenv';
+
+// Load .env file at startup so variables are available during module initialization
+dotenv.config();
 
 const env = process.env.NODE_ENV || 'development';
 
-const logLevel = (() => {
-  switch (env) {
-    case 'production':
-      return 'warn';
-    case 'test':
-      return 'error';
-    default:
-      return 'debug';
-  }
-})();
+const logLevel =
+  process.env.LOG_LEVEL ||
+  (() => {
+    switch (env) {
+      case 'production':
+        return 'warn';
+      case 'test':
+        return 'error';
+      default:
+        return 'debug';
+    }
+  })();
 
 const winstonInstance = winston.createLogger({
   level: logLevel,
