@@ -41,6 +41,11 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
           limit: 100,
         },
       ],
+      skipIf: (context) => {
+        // Skip throttling for OPTIONS (CORS preflight) requests
+        const request = context.switchToHttp().getRequest();
+        return request.method === 'OPTIONS';
+      },
     }),
     EventEmitterModule.forRoot(),
     AuthModule,

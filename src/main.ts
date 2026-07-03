@@ -15,6 +15,32 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const PORT = config.get<number>('app.port');
 
+  // for enable cors
+  const allowedOrigins = [
+    'http://localhost:3000', // React / Next.js
+    'http://localhost:5173', // Vite
+  ];
+
+  app.enableCors({
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'X-Requested-With',
+      'X-CSRF-Token',
+    ],
+    credentials: true,
+    maxAge: 3600,
+  });
+
   // for adding security headers
   const isProduction = config.get<string>('app.env') === 'production';
   app.use(
@@ -31,27 +57,6 @@ async function bootstrap() {
           },
     }),
   );
-
-  // for enable cors
-  const allowedOrigins = [
-    'http://localhost:3000', // React / Next.js
-    'http://localhost:5173', // Vite
-  ];
-
-  app.enableCors({
-    origin: (
-      origin: string | undefined,
-      callback: (err: Error | null, allow?: boolean) => void,
-    ) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true,
-  });
 
   // for cookie parser
   app.use(cookieParser());
@@ -79,8 +84,17 @@ async function bootstrap() {
     .setTitle('Admin Dashboard')
     .setDescription('Admin Dashboard API description')
     .setVersion('1.0')
-    .addBearerAuth()
-    .addCookieAuth()
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      description: 'JWT Token',
+    })
+    .addCookieAuth('refreshToken', {
+      type: 'apiKey',
+      in: 'cookie',
+      description: 'Refresh Token stored in cookies',
+    })
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api-docs', app, document);
