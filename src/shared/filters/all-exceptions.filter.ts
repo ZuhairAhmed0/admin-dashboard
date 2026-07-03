@@ -35,20 +35,30 @@ export class AllExceptionsFilter implements ExceptionFilter {
         message = (body.message as string | string[]) || exception.message;
         error = (body.error as string) || exception.name;
       }
+    } else if (exception instanceof Error) {
+      statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+      error = exception.name || 'InternalServerError';
+      message = 'Internal server error'; // Generic message for response
+
+      // Log detailed error to console
+      this.logger.error(
+        `${method} ${url} - ${statusCode} - ${error}: ${exception.message}`,
+        exception.stack,
+      );
     } else {
       statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
       message = 'Internal server error';
-      error = 'Internal server error';
+      error = 'InternalServerError';
+
+      // Log unknown exception
+      this.logger.error(
+        `${method} ${url} - ${statusCode} - ${error}`,
+        String(exception),
+      );
     }
 
-    // Log all exceptions: warn for 4xx, error for 5xx
-    if (statusCode >= 500) {
-      const isError = exception instanceof Error;
-      this.logger.error(
-        `${method} ${url} - ${statusCode} - ${error}: ${Array.isArray(message) ? message.join(', ') : message}`,
-        isError ? exception.stack : undefined,
-      );
-    } else {
+    // Log 4xx errors as warnings, skip if already logged above
+    if (!(exception instanceof Error) && statusCode < 500) {
       this.logger.warn(
         `${method} ${url} - ${statusCode} - ${error}: ${Array.isArray(message) ? message.join(', ') : message}`,
       );
