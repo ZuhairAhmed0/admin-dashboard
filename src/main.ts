@@ -14,54 +14,13 @@ async function bootstrap() {
   // Port
   const config = app.get(ConfigService);
   const PORT = config.get<number>('app.port');
-  const NODE_ENV = config.get<string>('app.env');
 
-  // for enable cors - MUST be before helmet
-  const allowedOrigins = [
-    'http://localhost:3000', // React / Next.js
-    'http://localhost:5173', // Vite
-  ];
-
-  app.enableCors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) {
-        callback(null, true);
-        return;
-      }
-
-      // In development, allow all origins
-      if (NODE_ENV !== 'production') {
-        callback(null, true);
-        return;
-      }
-
-      // In production, check against whitelist
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'Accept',
-      'Authorization',
-      'X-Requested-With',
-      'X-CSRF-Token',
-    ],
-    credentials: true,
-    maxAge: 3600,
-  });
-
-  // for adding security headers - AFTER enableCors
+  // for adding security headers
   const isProduction = config.get<string>('app.env') === 'production';
   app.use(
     helmet({
-      crossOriginResourcePolicy: false, // Allow CORS
       contentSecurityPolicy: isProduction
-        ? undefined
+        ? undefined // strict defaults in production
         : {
             directives: {
               defaultSrc: ["'self'"],
@@ -72,6 +31,27 @@ async function bootstrap() {
           },
     }),
   );
+
+  // for enable cors
+  const allowedOrigins = [
+    'http://localhost:3000', // React / Next.js
+    'http://localhost:5173', // Vite
+  ];
+
+  app.enableCors({
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  });
 
   // for cookie parser
   app.use(cookieParser());
@@ -107,17 +87,8 @@ async function bootstrap() {
     .setTitle('Admin Dashboard')
     .setDescription('Admin Dashboard API description')
     .setVersion('1.0')
-    .addBearerAuth({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      description: 'JWT Token',
-    })
-    .addCookieAuth('refreshToken', {
-      type: 'apiKey',
-      in: 'cookie',
-      description: 'Refresh Token stored in cookies',
-    })
+    .addBearerAuth()
+    .addCookieAuth()
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api-docs', app, document);
