@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, ExecutionContext } from '@nestjs/common';
+import { Request } from 'express';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { DatabaseModule } from './database/database.module';
@@ -41,9 +42,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
           limit: 100,
         },
       ],
-      skipIf: (context) => {
+      skipIf: (context: ExecutionContext) => {
         // Skip throttling for OPTIONS (CORS preflight) requests
-        const request = context.switchToHttp().getRequest();
+        const request = context.switchToHttp().getRequest<Request>();
         return request.method === 'OPTIONS';
       },
     }),

@@ -53,7 +53,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       // Log unknown exception
       this.logger.error(
         `${method} ${url} - ${statusCode} - ${error}`,
-        String(exception),
+        typeof exception === 'string' ? exception : JSON.stringify(exception),
       );
     }
 

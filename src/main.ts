@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppLogger } from './shared/logger/app.logger';
+import { Request, Response, NextFunction } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -33,33 +34,50 @@ async function bootstrap() {
   );
 
   // for enable cors
-  const allowedOrigins = [
-    'http://localhost:3000', // React / Next.js
-    'http://localhost:5173', // Vite
-  ];
+  app.enableCors(
+    (req: Request, callback: (err: Error | null, options?: any) => void) => {
+      const origin = req.header('Origin');
+      const host = req.header('Host');
 
-  app.enableCors({
-    origin: (
-      origin: string | undefined,
-      callback: (err: Error | null, allow?: boolean) => void,
-    ) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
+      const allowedOrigins = [
+        'http://localhost:3000', // React / Next.js
+        'http://localhost:5173', // Vite
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:5173',
+        `http://localhost:${PORT}`, // Backend local
+        `http://127.0.0.1:${PORT}`,
+      ];
+
+      // Add production allowed origins from environment variable if defined (e.g. your production frontend URL)
+      const prodOrigins = process.env.ALLOWED_ORIGINS;
+      if (prodOrigins) {
+        allowedOrigins.push(...prodOrigins.split(',').map((o) => o.trim()));
+      }
+
+      // Automatically allow same-origin requests (like Swagger running on the backend URL on Render/Local)
+      const isSameOrigin =
+        origin && host && origin.replace(/^https?:\/\//, '') === host;
+
+      if (!origin || isSameOrigin || allowedOrigins.includes(origin)) {
+        callback(null, {
+          origin: true,
+          methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+          credentials: true,
+        });
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(null, { origin: false });
       }
     },
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true,
-  });
+  );
 
   // for cookie parser
   app.use(cookieParser());
 
   // Redirect root path and /api to api-docs
-  app.use((req, res, next) => {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.path === '/' || req.path === '/api' || req.path === '/api/') {
-      return res.redirect('/api-docs');
+      res.redirect('/api-docs');
+      return;
     }
     next();
   });
