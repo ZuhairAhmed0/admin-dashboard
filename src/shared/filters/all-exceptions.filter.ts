@@ -58,7 +58,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     // Log 4xx errors as warnings, skip if already logged above
-    if (!(exception instanceof Error) && statusCode < 500) {
+    if (statusCode < 500) {
       this.logger.warn(
         `${method} ${url} - ${statusCode} - ${error}: ${Array.isArray(message) ? message.join(', ') : message}`,
       );
