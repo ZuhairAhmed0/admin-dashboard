@@ -70,12 +70,6 @@ export class UserController {
     description: 'Users fetched successfully',
     type: [UserResponseDto],
   })
-  @ApiQuery({
-    description:
-      'Optional filters (role, status, search) and pagination parameters (page, limit) to fetch users.',
-    required: false,
-    type: FilterUserDto,
-  })
   @Get()
   async findAll(@Query() filter: FilterUserDto) {
     return this.getAllUsersUseCase.execute(filter);
