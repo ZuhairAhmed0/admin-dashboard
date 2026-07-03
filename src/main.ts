@@ -14,6 +14,7 @@ async function bootstrap() {
   // Port
   const config = app.get(ConfigService);
   const PORT = config.get<number>('app.port');
+  const NODE_ENV = config.get<string>('app.env');
 
   // for enable cors
   const allowedOrigins = [
@@ -23,7 +24,20 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      // In development, allow all origins
+      if (NODE_ENV !== 'production') {
+        callback(null, true);
+        return;
+      }
+
+      // In production, check against whitelist
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
