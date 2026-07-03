@@ -61,6 +61,14 @@ async function bootstrap() {
   // for cookie parser
   app.use(cookieParser());
 
+  // Redirect root path and /api to api-docs
+  app.use((req, res, next) => {
+    if (req.path === '/' || req.path === '/api' || req.path === '/api/') {
+      return res.redirect('/api-docs');
+    }
+    next();
+  });
+
   // for setting global prefix
   app.setGlobalPrefix('api');
 
