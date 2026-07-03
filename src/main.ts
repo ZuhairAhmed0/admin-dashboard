@@ -16,7 +16,7 @@ async function bootstrap() {
   const PORT = config.get<number>('app.port');
   const NODE_ENV = config.get<string>('app.env');
 
-  // for enable cors
+  // for enable cors - MUST be before helmet
   const allowedOrigins = [
     'http://localhost:3000', // React / Next.js
     'http://localhost:5173', // Vite
@@ -55,12 +55,13 @@ async function bootstrap() {
     maxAge: 3600,
   });
 
-  // for adding security headers
+  // for adding security headers - AFTER enableCors
   const isProduction = config.get<string>('app.env') === 'production';
   app.use(
     helmet({
+      crossOriginResourcePolicy: false, // Allow CORS
       contentSecurityPolicy: isProduction
-        ? undefined // strict defaults in production
+        ? undefined
         : {
             directives: {
               defaultSrc: ["'self'"],
