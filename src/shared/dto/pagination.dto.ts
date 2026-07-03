@@ -4,7 +4,7 @@ import { IsOptional, IsPositive, Max } from 'class-validator';
 
 export class PaginationDto {
   @ApiProperty({
-    default: 1,
+    default: 10,
     description: 'Number of items per page',
   })
   @IsOptional()
